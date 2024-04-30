@@ -8,7 +8,7 @@ import Box from '@mui/material/Box';
 
 import Modal from '@mui/material/Modal';
 import ImageUpload from './Components/ImageUpload';
-
+import { InstagramEmbed } from 'react-social-media-embed';  
 
 const style = {
   position: 'absolute',
@@ -145,13 +145,22 @@ function App() {
      
 
 
-      {
+      <div className="app__posts">
+        <div className="app__postsLeft">
+        {
           post.map(pos=>
             <Post username={pos.username} caption={pos.caption} imgUrl={pos.imgUrl}/>
         )
       }
+        </div>
+    
+        <div className="app__postsRight">
+          <InstagramEmbed url="https://www.instagram.com/p/CUbHfhpswxt/" width={328} />
+        </div>
+      </div>
       
-   
+    
+
       {user?.displayName ? (
               <ImageUpload username={user?.displayName}/>
             ) : (<h3>Sorry you need to login</h3>)}
