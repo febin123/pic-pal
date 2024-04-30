@@ -7,6 +7,7 @@ import { Button,Input} from '@mui/material';
 import Box from '@mui/material/Box';
 
 import Modal from '@mui/material/Modal';
+import ImageUpload from './Components/ImageUpload';
 
 
 const style = {
@@ -90,12 +91,18 @@ function App() {
   return (
     <div className='app'>
 
-{user ? (<Button onClick={()=>auth.signOut()}>Logout</Button>):
+            {user?.displayName ? (
+              <ImageUpload username={user?.displayName}/>
+            ) : (<h3>Sorry you need to login</h3>)}
+            
+        
 
-( <div className="app__loginContainer">
-<Button onClick={()=>setOpenSignIn(true)}>Sign In</Button>
-<Button onClick={()=>setOpen(true)}>Sign Up</Button>
-</div> )}
+            {user ? (<Button onClick={()=>auth.signOut()}>Logout</Button>):
+
+            ( <div className="app__loginContainer">
+            <Button onClick={()=>setOpenSignIn(true)}>Sign In</Button>
+            <Button onClick={()=>setOpen(true)}>Sign Up</Button>
+            </div> )}
   
       <Modal
         open={open}
