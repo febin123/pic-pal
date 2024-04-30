@@ -1,41 +1,148 @@
-
-import { useState } from 'react';
+import * as React from 'react';
+import { useState,useEffect } from 'react';
 import './App.css';
 import Post from './Components/Post';
+import { db,auth  } from './Components/Firebase';
+import { Button,Input} from '@mui/material';
+import Box from '@mui/material/Box';
+
+import Modal from '@mui/material/Modal';
+
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 function App() {
-  const [post,setPost]=useState([
-    {username:"febin1",
-     caption:"Learning React1" ,
-     imgUrl:"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1200px-React-icon.svg.png"
-    },
-    {
-      username:"febin2",
-      caption:"Learning React2",
-       imgUrl:"https://natureconservancy-h.assetsadobe.com/is/image/content/dam/tnc/nature/en/photos/w/o/WOPA160517_D056-resized.jpg?crop=864%2C0%2C1728%2C2304&wid=600&hei=800&scl=2.88"
 
-    },
-    {
-      username:"febin3",
-       caption:"Learning React3" ,
-       imgUrl:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Hawaii_Creek.jpg/220px-Hawaii_Creek.jpg"
+  const [post,setPost]=useState([])
 
-    },
-    {
-      username:"febin4",
-       caption:"Learning React4" ,
-       imgUrl:"https://e2k9ube.cloudimg.io/v7/https://edienetlive.s3.eu-west-2.amazonaws.com/wp-content/uploads/sites/2/full_42489.jpg?width=856&height=482&func=crop"
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
+  const[username,setUsername]=useState('')
+  const[password,setPassword]=useState('')
+  const[email,setEmail]=useState('')
+
+  const[user,setUser]=useState(null)
+  const[openSignIn,setOpenSignIn]=useState(false)
+
+
+  useEffect(()=>{
+    const unsubscribe=auth.onAuthStateChanged((authUser)=>{
+      if(authUser){
+          console.log(authUser)
+          setUser(authUser)
+
+          if(authUser.displayName){
+
+          }else{
+            return authUser.updateProfile({
+              displayName:username
+            })
+          }
+      }else{
+        setUser(null)
+      }
+    })
+
+    return()=>{
+      unsubscribe()
     }
-  ])
+  },[user,username])
+
+
+  useEffect(()=>{
+    db.collection('posts').onSnapshot(snapshot=>{
+      setPost(snapshot.docs.map(doc=>doc.data()))
+    })
+  },[])
+
+  const signUp=(event)=>{
+    event.preventDefault()
+    auth.createUserWithEmailAndPassword(email,password)
+    .then((authUser)=>{
+      return authUser.user.updateProfile({
+        displayName:username
+      })
+    })
+    .catch((error)=>alert(error.message))
+    setOpen(false)
+  }
+
+  const signIn=(event)=>{
+    event.preventDefault()
+    auth.signInWithEmailAndPassword(email,password)
+    .catch((error)=>alert(error.message))
+    setOpenSignIn(false)
+  }
+
 
   return (
     <div className='app'>
+
+{user ? (<Button onClick={()=>auth.signOut()}>Logout</Button>):
+
+( <div className="app__loginContainer">
+<Button onClick={()=>setOpenSignIn(true)}>Sign In</Button>
+<Button onClick={()=>setOpen(true)}>Sign Up</Button>
+</div> )}
+  
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <form className='app__signup'>
+          <center>
+          <img className="app__headerImage" src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png" alt="" />
+          </center>
+          <Input placeholder="username" type="text" value={username} onChange={(e)=>setUsername(e.target.value)}/>
+          <Input placeholder="email" type="text" value={email} onChange={(e)=>setEmail(e.target.value)}/>
+          <Input placeholder="password" type="password" value={password} onChange={(e)=>setPassword(e.target.value)}/>
+          <Button type='submit' onClick={signUp}>Sign Up</Button>
+          </form>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={openSignIn}
+        onClose={()=>setOpenSignIn(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <form className='app__signup'>
+          <center>
+          <img className="app__headerImage" src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png" alt="" />
+          </center>
+       
+          <Input placeholder="email" type="text" value={email} onChange={(e)=>setEmail(e.target.value)}/>
+          <Input placeholder="password" type="password" value={password} onChange={(e)=>setPassword(e.target.value)}/>
+          <Button type='submit' onClick={signIn}>Sign In</Button>
+          </form>
+        </Box>
+      </Modal>
+
+
       <div className="app__header">
         <img className="app__headerImage" src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png" alt="" />
       </div>
 
-  
+     
+
+
       {
           post.map(pos=>
             <Post username={pos.username} caption={pos.caption} imgUrl={pos.imgUrl}/>
