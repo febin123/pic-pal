@@ -90,20 +90,8 @@ function App() {
 
   return (
     <div className='app'>
-
-            {user?.displayName ? (
-              <ImageUpload username={user?.displayName}/>
-            ) : (<h3>Sorry you need to login</h3>)}
-            
         
 
-            {user ? (<Button onClick={()=>auth.signOut()}>Logout</Button>):
-
-            ( <div className="app__loginContainer">
-            <Button onClick={()=>setOpenSignIn(true)}>Sign In</Button>
-            <Button onClick={()=>setOpen(true)}>Sign Up</Button>
-            </div> )}
-  
       <Modal
         open={open}
         onClose={handleClose}
@@ -145,6 +133,13 @@ function App() {
 
       <div className="app__header">
         <img className="app__headerImage" src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png" alt="" />
+
+        {user ? (<Button onClick={()=>auth.signOut()}>Logout</Button>):
+
+        ( <div className="app__loginContainer">
+              <Button onClick={()=>setOpenSignIn(true)}>Sign In</Button>
+              <Button onClick={()=>setOpen(true)}>Sign Up</Button>
+                </div> )}
       </div>
 
      
@@ -157,6 +152,10 @@ function App() {
       }
       
    
+      {user?.displayName ? (
+              <ImageUpload username={user?.displayName}/>
+            ) : (<h3>Sorry you need to login</h3>)}
+            
   
     </div>
   );
